@@ -12,13 +12,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.12.4'  # Replace '3.x' with the version of Python you're using
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install mysql-connector-python  # Install MySQL connector
+
       - name: Install MySQL client
         run: sudo apt-get update && sudo apt-get install -y mysql-client
 
-      - name: Deploy to Database
+      - name: Deploy to Database using Python Script
         env:
           DB_HOST: ${{ secrets.DB_HOST }}
           DB_USER: ${{ secrets.DB_USER }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           DB_NAME: ${{ secrets.DB_NAME }}
-        run: mysql -h $DB_HOST -u $DB_USER -p$DB_PASSWORD $DB_NAME < update_projects_schema.sql
+        run: |
+          python automate_schema_changes.py
